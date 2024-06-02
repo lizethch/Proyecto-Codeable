@@ -40,7 +40,8 @@ strong{
   margin: 20px auto;
   padding: 5px;
   position: left;
-  background-color:var(--neutral-600);
+  background-color:var(--neutral-900);
+  color: var(--white);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   white-space: pre-wrap; 
   word-wrap: break-word; 
