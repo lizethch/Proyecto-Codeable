@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Fundamentals Evaluation - Manipulación DOM</title>
+    <link rel="stylesheet" href="./styles/index.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="container header__container">
+        <a href="./index.html">
+          <img
+            src="./assets/images/codeable-logo-sm.svg"
+            alt="codeable-logo"
+            width="135"
+            height="32"
+            class="header__logo"
+          />
+        </a>
+        <nav class="navigation">
+          <ul>
+            <li><a href="./diagramas.html">Diagramas VV</a></li>
+            <li><a href="./funciones.html">Funciones</a></li>
+            <li class="active"><a href="./dom.html">Manipulación del DOM</a></li>
+          </ul>
+        </nav>
+        <p class="header__name">Lizeth Churaira</p>
+
+      </div>
+    </header>
+  
+      <div class="container body__container">
+        <h1>Manipulación del DOM</h1>
+            <h2>Instrucciones</h2>
+            <p>Sigue las instrucciones y crea componentes web utilizando JavaScript, manipulando el DOM, escuchando eventos e implementando persistencia con localStorage.</p>
+            <h2>Crea un 'Tooltip'</h2>
+            <p>Un Tooltip es un pequeño cuadro de información que aparece cuando pasas el cursor sobre un elemento en una interfaz gráfica de usuario. Este cuadro ofrece detalles adicionales sobre la función del elemento, proporcionando así una ayuda contextual. Por ejemplo, si pasas el cursor sobre un botón que guarda cambios en una aplicación, un Tooltip podría aparecer con el texto "Guardar", para clarificar qué hace ese botón. Los Tooltips son útiles para mejorar la experiencia del usuario, ya que proporcionan orientación sin requerir que se desplace a otra sección para obtener más información.</p>
+            <h2>Requerimiento</h2>
+            <p>Tu tarea es crear un Tooltip, un pequeño elemento emergente que proporcione información adicional cuando el usuario pase el cursor sobre un elemento. Utilizarás JavaScript para manipular el DOM y crear este componente.</p>
+            <ul class="list-ul">
+                <li><strong>Elemento Objetivo:</strong> El elemento sobre el cual aparecerá el Tooltip será cualquier elemento que tenga un atributo data-tooltip definido.</li>
+                <li><strong>Contenido del Tooltip:</strong> El valor del atributo será el mensaje que aparecerá en el Tooltip. Por ejemplo, un elemento con el atributo data-tooltip="Grabar" mostrará el texto "Grabar" como contenido del Tooltip.</li>
+                <li><strong>Posicionamiento:</strong> El Tooltip debe aparecer encima del elemento objetivo.</li>
+                <li><strong>Estilo:</strong> Sigue el diseño especificado en la figura para el Tooltip.</li>
+                <li><strong>Interacción:</strong> El Tooltip debe mostrarse cuando el usuario pase el cursor sobre el elemento objetivo y desaparecer cuando el cursor se mueva fuera del elemento. Pero no lo debe hacer de inmediato. El mouse debe mantenerse por encima del elemento objetivo durante 300ms para luego mostrar el Tooltip. Si el cursor sale del elemento objetivo antes de cumplirse los 300ms, el Tooltip no debe mostrarse.</li>
+            </ul>
+          <h2>Demo</h2>
+          <p>A continuación, presenta una demostración del Tooltip:</p>
+          <div class="tooltip-content">
+            <button data-tooltip="¡Funciona! 😊">Tooltip</button>
+          </div>
+
+          <div class="container demo__container">
+            <h1>Formulario con Validación en Tiempo Real</h1>
+            <form id="form">
+                <div class="form-group">
+                    <label for="nombre">Nombre</label>
+                    <input type="text" id="nombre" name="nombre" required>
+                    <span class="error" id="error-nombre"></span>
+                </div>
+                <div class="form-group">
+                    <label for="apodo">Apodo</label>
+                    <input type="text" id="apodo" name="apodo" required>
+                    <span class="error" id="error-apodo"></span>
+                </div>
+                <div class="form-group">
+                    <label for="biografia">Biografía</label>
+                    <textarea id="biografia" name="biografia"></textarea>
+                    <span class="error" id="error-biografia"></span>
+                </div>
+                <div class="form-group password-group">
+                    <label for="contrasena">Contraseña</label>
+                    <input type="password" id="contrasena" name="contrasena" required>
+                    <span class="error" id="error-contrasena"></span>
+                    <span class="toggle-password" id="toggle-password">👁️</span>
+                </div>
+                <button type="submit" id="submit" disabled>Enviar</button>
+            </form>
+            <pre id="server-response"></pre>
+          </div>
+      </div>
+  </div>
+
+  <script>
+    document.querySelectorAll('[data-tooltip]').forEach(element => {
+    const tooltip = document.createElement('div');
+    tooltip.textContent = element.getAttribute('data-tooltip');
+    tooltip.classList.add('tooltip');
+
+    let timeoutId;
+
+    element.addEventListener('mouseenter', () => {
+      timeoutId = setTimeout(() => {
+        document.body.appendChild(tooltip);
+        const elementRect = element.getBoundingClientRect();
+        const tooltipRect = tooltip.getBoundingClientRect();
+
+        tooltip.style.top = `${elementRect.top + window.scrollY - tooltipRect.height - 5}px`;
+        tooltip.style.left = `${elementRect.left + window.scrollX + (elementRect.width - tooltipRect.width) / 2}px`;
+
+        tooltip.classList.add('visible');
+      }, 300);
+    });
+
+    element.addEventListener('mouseleave', () => {
+      clearTimeout(timeoutId);
+      tooltip.classList.remove('visible');
+      tooltip.addEventListener('transitionend', () => tooltip.remove(), { once: true });
+    });
+  });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("form");
+    const nombre = document.getElementById("nombre");
+    const apodo = document.getElementById("apodo");
+    const biografia = document.getElementById("biografia");
+    const contrasena = document.getElementById("contrasena");
+    const submitButton = document.getElementById("submit");
+    const serverResponse = document.getElementById("server-response");
+    const togglePassword = document.getElementById("toggle-password");
+
+    const errorMessages = {
+        nombre: "El nombre es obligatorio.",
+        apodo: "El apodo debe tener entre 3 y 10 caracteres alfanuméricos.",
+        biografia: "La biografía debe tener mínimo 100 caracteres.",
+        contrasena: "La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula y un número."
+    };
+
+    const validations = {
+      nombre: value => value.trim() !== "",
+      apodo: value => /^[a-zA-Z0-9]{3,10}$/.test(value),
+      biografia: value => value.length === 0 || value.length >= 100,
+      contrasena: value => /^(?=.*[A-Z])(?=.*\d).{8,}$/.test(value)
+    };
+
+    function validateField(field, value) {
+        const errorElement = document.getElementById("error-contrasena");
+        console.log(field.id);
+        console.log(value);
+        console.log(validations[field.id](value));
+        if (validations[field.id](value)) {
+            errorElement.textContent = "";
+            return true;
+        } else {
+            errorElement.textContent = errorMessages[field.id];
+            return false;
+        }
+    }
+
+    function validateForm() {
+        const isValid = ["nombre", "apodo", "biografia", "contrasena"].every(id => {
+            const field = document.getElementById(id);
+            return validateField(field, field.value);
+        });
+
+        submitButton.disabled = !isValid;
+    }
+
+    function saveToLocalStorage() {
+        localStorage.setItem("formData", JSON.stringify({
+            nombre: nombre.value,
+            apodo: apodo.value,
+            biografia: biografia.value
+        }));
+    }
+
+    function loadFromLocalStorage() {
+        const formData = JSON.parse(localStorage.getItem("formData"));
+        if (formData) {
+            nombre.value = formData.nombre || "";
+            apodo.value = formData.apodo || "";
+            biografia.value = formData.biografia || "";
+        }
+    }
+
+    loadFromLocalStorage();
+    validateForm();
+
+    form.addEventListener("input", event => {
+        const field = event.target;
+        if (validations[field.id]) {
+            validateField(field, field.value);
+            if (field.id !== "contrasena") {
+                saveToLocalStorage();
+            }
+            validateForm();
+        }
+    });
+
+    form.addEventListener("submit", event => {
+        event.preventDefault();
+        fetch("https://mocktarget.apigee.net/echo", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                nombre: nombre.value,
+                apodo: apodo.value,
+                biografia: biografia.value
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            serverResponse.textContent = JSON.stringify(data, null, 2);
+        })
+        .catch(error => {
+            serverResponse.textContent = `Error: ${error}`;
+        });
+    });
+
+    togglePassword.addEventListener("click", () => {
+        if (contrasena.type === "password") {
+            contrasena.type = "text";
+            togglePassword.textContent = "🙈";
+        } else {
+            contrasena.type = "password";
+            togglePassword.textContent = "👁️";
+        }
+    });
+  });
+  </script>
+
+  </body>
+</html>
